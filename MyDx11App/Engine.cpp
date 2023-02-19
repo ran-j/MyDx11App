@@ -207,7 +207,7 @@ void Engine::CreateInputLayout()
     vsBlob->Release();
 }
 
-void Engine::SetVertexData(float vertexData[], UINT Stride, UINT NumVerts, UINT Offset)
+void Engine::SetVertexData(float *vertexData, UINT Stride, UINT NumVerts, UINT Offset)
 {
     stride = Stride;
     numVerts = NumVerts;
@@ -220,6 +220,15 @@ void Engine::SetVertexData(float vertexData[], UINT Stride, UINT NumVerts, UINT 
 
     D3D11_SUBRESOURCE_DATA vertexSubresourceData = {vertexData};
 
+    HRESULT hResult = d3d11Device->CreateBuffer(&vertexBufferDesc, &vertexSubresourceData, &vertexBuffer);
+    assert(SUCCEEDED(hResult));
+}
+
+void Engine::SetVertexBuffer(D3D11_BUFFER_DESC vertexBufferDesc, D3D11_SUBRESOURCE_DATA vertexSubresourceData, UINT Stride, UINT NumVerts, UINT Offset)
+{
+    stride = Stride;
+    numVerts = NumVerts;
+    offset = Offset;
     HRESULT hResult = d3d11Device->CreateBuffer(&vertexBufferDesc, &vertexSubresourceData, &vertexBuffer);
     assert(SUCCEEDED(hResult));
 }

@@ -89,10 +89,20 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR /*lpC
                               0.0f, 0.5f, 0.f, 1.f, 0.f, 1.f,
                               0.5f, -0.5f, 1.f, 0.f, 0.f, 1.f,
                               -0.5f, -0.5f, 0.f, 0.f, 1.f, 1.f};
+
         stride = 6 * sizeof(float);
         numVerts = sizeof(vertexData) / stride;
         offset = 0;
-        engine->SetVertexData(vertexData, stride, numVerts, offset);
+        // engine->SetVertexData(vertexData, stride, numVerts, offset);
+
+        D3D11_BUFFER_DESC vertexBufferDesc = {};
+        vertexBufferDesc.ByteWidth = sizeof(vertexData);
+        vertexBufferDesc.Usage = D3D11_USAGE_IMMUTABLE;
+        vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+
+        D3D11_SUBRESOURCE_DATA vertexSubresourceData = {vertexData};
+
+        engine->SetVertexBuffer(vertexBufferDesc, vertexSubresourceData, stride, numVerts, offset);
     }
 
     // Main loop
