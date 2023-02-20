@@ -3,7 +3,7 @@
 #include "MyDx11App.h"
 
 #include <windows.h>
-#include "Engine.h"
+#include "Render.h"
 
 static bool global_windowDidResize = false;
 
@@ -76,50 +76,93 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR /*lpC
         }
     }
 
-    // Initialize the engine
-    Engine *engine = new Engine();
-    engine->Init(hwnd);
+    // Initialize the Render
+    Render *render = new Render();
+    render->Init(hwnd);
 
     // SetVertexData
     {
-        UINT numVerts;
-        UINT stride;
-        UINT offset;
-        float vertexData[] = {// x, y, r, g, b, a
-                              0.0f, 0.5f, 0.f, 1.f, 0.f, 1.f,
-                              0.5f, -0.5f, 1.f, 0.f, 0.f, 1.f,
-                              -0.5f, -0.5f, 0.f, 0.f, 1.f, 1.f};
+        UINT numFloatsPerVertex = 3; // número de floats por vértice
 
-        stride = 6 * sizeof(float);
-        numVerts = sizeof(vertexData) / stride;
-        offset = 0;
-        // engine->SetVertexData(vertexData, stride, numVerts, offset);
+        float vertexData1[] = {
+            0.f,
+            0.5f,
+            0.f,
+            0.4f,
+            -0.5f,
+            0.f,
+        };
 
-        D3D11_BUFFER_DESC vertexBufferDesc = {};
-        vertexBufferDesc.ByteWidth = sizeof(vertexData);
-        vertexBufferDesc.Usage = D3D11_USAGE_IMMUTABLE;
-        vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+        UINT numFloatsInVertexData1 = sizeof(vertexData1) / sizeof(float);
 
-        D3D11_SUBRESOURCE_DATA vertexSubresourceData = {vertexData};
+        RenderVertex vertex1;
+        vertex1.stride = 3 * sizeof(float);
+        vertex1.offset = 0;
+        vertex1.startSlot = 0;
+        vertex1.numVerts = numFloatsInVertexData1 / numFloatsPerVertex;
 
-        engine->SetVertexBuffer(vertexBufferDesc, vertexSubresourceData, stride, numVerts, offset);
+        D3D11_BUFFER_DESC vertexBufferDesc1 = {};
+        vertexBufferDesc1.ByteWidth = sizeof(vertexData1);
+        vertexBufferDesc1.Usage = D3D11_USAGE_IMMUTABLE;
+        vertexBufferDesc1.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+
+        D3D11_SUBRESOURCE_DATA vertexSubresourceData1 = {vertexData1};
+
+        auto vertex1Buffer = render->CreateVertexBuffer(vertexBufferDesc1, vertexSubresourceData1);
+
+        vertex1.buffer = vertex1Buffer;
+
+        // DATA 2 $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        float vertexData2[] = {
+            -0.8f,
+            -0.5f,
+            0.f,
+            -0.4f,
+            0.5f,
+            0.f,
+            0.f,
+            -0.5f,
+            0.f,
+        };
+
+        UINT numFloatsInVertexData2 = sizeof(vertexData2) / sizeof(float);
+
+        RenderVertex vertex2;
+        vertex2.stride = 3 * sizeof(float);
+        vertex2.offset = 0;
+        vertex2.startSlot = 1;
+        vertex2.numVerts = numFloatsInVertexData2 / numFloatsPerVertex;
+
+        D3D11_BUFFER_DESC vertexBufferDesc2 = {};
+        vertexBufferDesc2.ByteWidth = sizeof(vertexData2);
+        vertexBufferDesc2.Usage = D3D11_USAGE_IMMUTABLE;
+        vertexBufferDesc2.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+
+        D3D11_SUBRESOURCE_DATA vertexSubresourceData2 = {vertexData2};
+
+        auto vertex2Buffer = render->CreateVertexBuffer(vertexBufferDesc2, vertexSubresourceData2);
+
+        vertex2.buffer = vertex2Buffer;
+
+        render->AddVertexData(vertex1);
+        render->AddVertexData(vertex2);
     }
 
     // Main loop
-    while (engine->ShouldRun)
+    while (render->ShouldRun)
     {
         MSG msg = {};
         while (PeekMessageW(&msg, 0, 0, 0, PM_REMOVE))
         {
             if (msg.message == WM_QUIT)
             {
-                engine->ShouldRun = false;
+                render->ShouldRun = false;
             }
             TranslateMessage(&msg);
             DispatchMessageW(&msg);
         }
 
-        engine->Render(hwnd, global_windowDidResize);
+        render->RenderLoop(hwnd, global_windowDidResize);
     }
 
     return 0;

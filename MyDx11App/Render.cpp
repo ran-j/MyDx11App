@@ -1,6 +1,6 @@
-#include "Engine.h"
+#include "Render.h"
 
-void Engine::Init(HWND hwnd)
+void Render::Init(HWND hwnd)
 {
     CreateDeviceAndContext();
     CreateSwapChain(hwnd);
@@ -9,7 +9,7 @@ void Engine::Init(HWND hwnd)
     CreateInputLayout();
 }
 
-Engine::~Engine()
+Render::~Render()
 {
     if (d3d11Device)
         d3d11Device->Release();
@@ -31,7 +31,7 @@ Engine::~Engine()
         vsBlob->Release();
 }
 
-void Engine::CreateDeviceAndContext()
+void Render::CreateDeviceAndContext()
 {
     ID3D11Device *baseDevice;
     ID3D11DeviceContext *baseDeviceContext;
@@ -80,7 +80,7 @@ void Engine::CreateDeviceAndContext()
 #endif
 }
 
-void Engine::CreateSwapChain(HWND hwnd)
+void Render::CreateSwapChain(HWND hwnd)
 {
     // Get DXGI Factory (needed to create Swap Chain)
     IDXGIFactory2 *dxgiFactory;
@@ -124,7 +124,7 @@ void Engine::CreateSwapChain(HWND hwnd)
     dxgiFactory->Release();
 }
 
-void Engine::CreateRenderTarget()
+void Render::CreateRenderTarget()
 {
     // Get back buffer from swap chain
     ID3D11Texture2D *backBuffer;
@@ -138,7 +138,7 @@ void Engine::CreateRenderTarget()
     backBuffer->Release();
 }
 
-void Engine::CreateShaders()
+void Render::CreateShaders()
 {
     // Create Vertex Shader
     {
@@ -193,7 +193,7 @@ void Engine::CreateShaders()
     }
 }
 
-void Engine::CreateInputLayout()
+void Render::CreateInputLayout()
 {
     D3D11_INPUT_ELEMENT_DESC inputElementDesc[] =
         {
@@ -207,33 +207,15 @@ void Engine::CreateInputLayout()
     vsBlob->Release();
 }
 
-void Engine::SetVertexData(float *vertexData, UINT Stride, UINT NumVerts, UINT Offset)
+ID3D11Buffer *Render::CreateVertexBuffer(D3D11_BUFFER_DESC vertexBufferDesc, D3D11_SUBRESOURCE_DATA vertexSubresourceData)
 {
-    stride = Stride;
-    numVerts = NumVerts;
-    offset = Offset;
-
-    D3D11_BUFFER_DESC vertexBufferDesc = {};
-    vertexBufferDesc.ByteWidth = sizeof(vertexData);
-    vertexBufferDesc.Usage = D3D11_USAGE_IMMUTABLE;
-    vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-
-    D3D11_SUBRESOURCE_DATA vertexSubresourceData = {vertexData};
-
+    ID3D11Buffer *vertexBuffer;
     HRESULT hResult = d3d11Device->CreateBuffer(&vertexBufferDesc, &vertexSubresourceData, &vertexBuffer);
     assert(SUCCEEDED(hResult));
+    return vertexBuffer;
 }
 
-void Engine::SetVertexBuffer(D3D11_BUFFER_DESC vertexBufferDesc, D3D11_SUBRESOURCE_DATA vertexSubresourceData, UINT Stride, UINT NumVerts, UINT Offset)
-{
-    stride = Stride;
-    numVerts = NumVerts;
-    offset = Offset;
-    HRESULT hResult = d3d11Device->CreateBuffer(&vertexBufferDesc, &vertexSubresourceData, &vertexBuffer);
-    assert(SUCCEEDED(hResult));
-}
-
-void Engine::Render(HWND hwnd, bool &global_windowDidResize)
+void Render::RenderLoop(HWND hwnd, bool &global_windowDidResize)
 {
 
     if (global_windowDidResize)
@@ -272,7 +254,13 @@ void Engine::Render(HWND hwnd, bool &global_windowDidResize)
     d3d11DeviceContext->VSSetShader(vertexShader, nullptr, 0);
     d3d11DeviceContext->PSSetShader(pixelShader, nullptr, 0);
 
-    d3d11DeviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &stride, &offset);
+    // d3d11DeviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &stride, &offset);
+    UINT numVerts = 0;
+    for (int i = 0; i < vertexData.size(); i++)
+    {
+        numVerts += vertexData[i].numVerts;
+        d3d11DeviceContext->IASetVertexBuffers(vertexData[i].startSlot, 1, &vertexData[i].buffer, &vertexData[i].stride, &vertexData[i].offset);
+    }
 
     d3d11DeviceContext->Draw(numVerts, 0);
 

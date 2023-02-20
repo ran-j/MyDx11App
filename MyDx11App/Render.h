@@ -7,8 +7,18 @@
 #pragma comment(lib, "d3dcompiler.lib")
 
 #include <assert.h>
+#include <vector>
 
-class Engine
+struct RenderVertex
+{
+    UINT stride;
+    UINT numVerts;
+    UINT offset;
+    UINT startSlot;
+    ID3D11Buffer *buffer;
+};
+
+class Render
 {
 
 private:
@@ -24,10 +34,7 @@ private:
     ID3D11Buffer *vertexBuffer;
     ID3DBlob *vsBlob;
 
-private:
-    UINT numVerts;
-    UINT stride;
-    UINT offset;
+    std::vector<RenderVertex> vertexData;
 
 private:
     void CreateDeviceAndContext();
@@ -37,13 +44,13 @@ private:
     void CreateInputLayout();
 
 public:
-    ~Engine();
+    ~Render();
 
     void Init(HWND hwnd);
-    void Render(HWND hwnd, bool &global_windowDidResize);
-    void SetVertexData(float *vertexData, UINT Stride, UINT NumVerts, UINT Offset);
-    // DEPRECATED
-    void SetVertexBuffer(D3D11_BUFFER_DESC vertexBufferDesc, D3D11_SUBRESOURCE_DATA vertexSubresourceData, UINT Stride, UINT NumVerts, UINT Offset);
+    void RenderLoop(HWND hwnd, bool &global_windowDidResize);
+    ID3D11Buffer *CreateVertexBuffer(D3D11_BUFFER_DESC vertexBufferDesc, D3D11_SUBRESOURCE_DATA vertexSubresourceData);
+
+    inline void AddVertexData(RenderVertex data) { vertexData.push_back(data); }
 
 public:
     bool ShouldRun = true;
