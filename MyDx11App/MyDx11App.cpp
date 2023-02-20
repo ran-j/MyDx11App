@@ -85,20 +85,23 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR /*lpC
         UINT numFloatsPerVertex = 3; // número de floats por vértice
 
         float vertexData1[] = {
-            0.f,
-            0.5f,
-            0.f,
-            0.4f,
-            -0.5f,
-            0.f,
+            0.0f, 0.5f, 0.f, // Vertex 1 position
+            1.f, 0.f, 1.f,   // Vertex 1 color
+
+            0.5f, -0.5f, 1.f, // Vertex 2 position
+            0.f, 0.f, 1.f,    // Vertex 2 color
+
+            -0.5f, -0.5f, 0.0f, // Vertex 3 position
+            0.f, 1.f, 1.f       // Vertex 3 color
+
         };
 
         UINT numFloatsInVertexData1 = sizeof(vertexData1) / sizeof(float);
 
         RenderVertex vertex1;
-        vertex1.stride = 3 * sizeof(float);
+        vertex1.stride = 6 * sizeof(float);
         vertex1.offset = 0;
-        vertex1.startSlot = 0;
+        vertex1.startSlot = 1;
         vertex1.numVerts = numFloatsInVertexData1 / numFloatsPerVertex;
 
         D3D11_BUFFER_DESC vertexBufferDesc1 = {};
@@ -114,23 +117,22 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR /*lpC
 
         // DATA 2 $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
         float vertexData2[] = {
-            -0.8f,
-            -0.5f,
-            0.f,
-            -0.4f,
-            0.5f,
-            0.f,
-            0.f,
-            -0.5f,
-            0.f,
+            0.0f, 0.5f, 0.f, // Vertex 1 position
+            1.f, 0.f, 1.f,   // Vertex 1 color
+
+            0.5f, -0.5f, 1.f, // Vertex 2 position
+            0.f, 0.f, 1.f,    // Vertex 2 color
+
+            -0.5f, -0.5f, 0.0f, // Vertex 3 position
+            0.f, 1.f, 1.f       // Vertex 3 color
         };
 
         UINT numFloatsInVertexData2 = sizeof(vertexData2) / sizeof(float);
 
         RenderVertex vertex2;
-        vertex2.stride = 3 * sizeof(float);
+        vertex2.stride = 6 * sizeof(float);
         vertex2.offset = 0;
-        vertex2.startSlot = 1;
+        vertex2.startSlot = 0;
         vertex2.numVerts = numFloatsInVertexData2 / numFloatsPerVertex;
 
         D3D11_BUFFER_DESC vertexBufferDesc2 = {};
